@@ -11,5 +11,6 @@ namespace EmployeeManagement.Repository
         Task DeleteEmployeeAsync(int id);
         Task<bool> EmployeeExistsAsync(int id);
         Task<bool> EmployeeExistsAsync(string firstName, string lastName, string email);
+        Task<IEnumerable<EmployeeDto>> SearchEmployees(string name);
     }
 }

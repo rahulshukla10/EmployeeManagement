@@ -84,4 +84,17 @@ public class EmployeeController : ControllerBase
 
         return Ok(employee);
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchEmployees([FromQuery] string name)
+    {
+        var employees = await _employeeRepository.SearchEmployees(name);
+
+        if (employees == null || employees.Count() == 0)
+        {
+            return NotFound("No employees found matching the search criteria.");
+        }
+
+        return Ok(employees);
+    }
 }

@@ -8,14 +8,14 @@ namespace EmployeeManagement.Model
         public int Id { get; set; }
 
         [Required(ErrorMessage = "First name is required.")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [Required(ErrorMessage = "Last name is required.")]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address.")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [Range(18, 99, ErrorMessage = "Age must be between 18 and 99.")]
         public int Age { get; set; }

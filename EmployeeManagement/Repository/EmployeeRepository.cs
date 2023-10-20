@@ -56,5 +56,13 @@ namespace EmployeeManagement.Repository
                 e.FirstName == firstName && e.LastName == lastName && e.Email == email);
         }
 
+        public async Task<IEnumerable<EmployeeDto>> SearchEmployees(string name)
+        {
+            var employees = await _context.Employees
+                .Where(e => e.FirstName.ToLower().Contains(name.ToLower()) || e.LastName.ToLower().Contains(name.ToLower()))
+                .ToListAsync();
+
+            return employees;
+        }
     }
 }

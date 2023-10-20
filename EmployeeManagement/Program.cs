@@ -16,16 +16,13 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase("EmployeeDB"));
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
-
 var app = builder.Build();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
@@ -33,3 +30,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+
