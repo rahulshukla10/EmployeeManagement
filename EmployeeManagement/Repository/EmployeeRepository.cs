@@ -1,6 +1,5 @@
 ﻿using EmployeeManagement.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace EmployeeManagement.Repository
 {
@@ -13,56 +12,49 @@ namespace EmployeeManagement.Repository
             _context = context;
         }
 
-        public EmployeeDto GetEmployeeById(int id)
+        public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync()
         {
-            return _context.Employees.FirstOrDefault(e => e.Id == id);
+            return await _context.Employees.ToListAsync();
         }
 
-        public IEnumerable<EmployeeDto> GetAllEmployees()
+        public async Task<EmployeeDto> GetEmployeeAsync(int id)
         {
-            return _context.Employees.ToList();
+            return await _context.Employees.FindAsync(id);
         }
 
-        public void AddEmployee(EmployeeDto employee)
+        public async Task<EmployeeDto> CreateEmployeeAsync(EmployeeDto employee)
         {
-            if (employee == null)
-            {
-                throw new ArgumentNullException(nameof(employee));
-            }
-
-            // Check for uniqueness of first name, last name, and email address
-            if (_context.Employees.Any(e =>
-                e.FirstName == employee.FirstName &&
-                e.LastName == employee.LastName &&
-                e.Email == employee.Email))
-            {
-                throw new InvalidOperationException("Employee with the same first name, last name, and email address already exists.");
-            }
-
             _context.Employees.Add(employee);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+            return employee;
         }
 
-        public void UpdateEmployee(EmployeeDto employee)
+        public async Task UpdateEmployeeAsync(EmployeeDto employee)
         {
-            if (employee == null)
-            {
-                throw new ArgumentNullException(nameof(employee));
-            }
-
-            _context.Employees.Update(employee);
-            _context.SaveChanges();
+            _context.Entry(employee).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteEmployee(int id)
+        public async Task DeleteEmployeeAsync(int id)
         {
-            var employee = _context.Employees.Find(id);
-
+            var employee = await _context.Employees.FindAsync(id);
             if (employee != null)
             {
                 _context.Employees.Remove(employee);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> EmployeeExistsAsync(int id)
+        {
+            return await _context.Employees.AnyAsync(e => e.Id == id);
+        }
+
+        public async Task<bool> EmployeeExistsAsync(string firstName, string lastName, string email)
+        {
+            return await _context.Employees.AnyAsync(e =>
+                e.FirstName == firstName && e.LastName == lastName && e.Email == email);
+        }
+
     }
 }

@@ -1,8 +1,5 @@
-﻿// Data/ApplicationDbContext.cs
-using EmployeeManagement.Model;
+﻿using EmployeeManagement.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System;
 
 public class ApplicationDbContext : DbContext
 {

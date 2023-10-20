@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using EmployeeManagement.Model;
-using System;
-using System.Collections.Generic;
+﻿using EmployeeManagement.Model;
 using EmployeeManagement.Repository;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [Route("api/employees")]
 [ApiController]
@@ -16,16 +15,16 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetEmployees()
+    public async Task<ActionResult<IEnumerable<EmployeeDto>>> GetEmployees()
     {
-        var employees = _employeeRepository.GetAllEmployees();
+        var employees = await _employeeRepository.GetEmployeesAsync();
         return Ok(employees);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetEmployee(int id)
+    public async Task<ActionResult<EmployeeDto>> GetEmployee(int id)
     {
-        var employee = _employeeRepository.GetEmployeeById(id);
+        var employee = await _employeeRepository.GetEmployeeAsync(id);
 
         if (employee == null)
         {
@@ -36,47 +35,53 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult CreateEmployee(EmployeeDto employee)
+    public async Task<ActionResult<EmployeeDto>> CreateEmployee(EmployeeDto employee)
     {
-        if (employee == null)
+        if (await _employeeRepository.EmployeeExistsAsync(employee.FirstName, employee.LastName, employee.Email))
         {
-            return BadRequest();
+            return BadRequest("Employee with the same name and email already exists.");
         }
 
-        _employeeRepository.AddEmployee(employee);
-        return CreatedAtAction(nameof(GetEmployee), new { id = employee.Id }, employee);
+        var createdEmployee = await _employeeRepository.CreateEmployeeAsync(employee);
+
+        return CreatedAtAction(nameof(GetEmployee), new { id = createdEmployee.Id }, createdEmployee);
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdateEmployee(int id, EmployeeDto employee)
+    public async Task<IActionResult> UpdateEmployee(int id, EmployeeDto employee)
     {
         if (id != employee.Id)
         {
-            return BadRequest();
+            return BadRequest("ID mismatch");
         }
 
-        var existingEmployee = _employeeRepository.GetEmployeeById(id);
-
-        if (existingEmployee == null)
+        try
         {
-            return NotFound();
+            await _employeeRepository.UpdateEmployeeAsync(employee);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!await _employeeRepository.EmployeeExistsAsync(id))
+            {
+                return NotFound();
+            }
+            throw;
         }
 
-        _employeeRepository.UpdateEmployee(employee);
         return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteEmployee(int id)
+    public async Task<ActionResult<EmployeeDto>> DeleteEmployee(int id)
     {
-        var employee = _employeeRepository.GetEmployeeById(id);
-
+        var employee = await _employeeRepository.GetEmployeeAsync(id);
         if (employee == null)
         {
             return NotFound();
         }
 
-        _employeeRepository.DeleteEmployee(id);
-        return NoContent();
+        await _employeeRepository.DeleteEmployeeAsync(id);
+
+        return Ok(employee);
     }
 }
