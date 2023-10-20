@@ -5,7 +5,7 @@ namespace EmployeeManagement.Model
 {
     public class EmployeeDto
     {
-        public int EmployeeId { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "First name is required.")]
         public string FirstName { get; set; }
